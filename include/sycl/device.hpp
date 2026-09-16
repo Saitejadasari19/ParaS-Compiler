@@ -117,7 +117,7 @@ public:
          std::uint64_t global_mem_size_bytes,
          info::local_mem_type local_mem_type, bool is_cpu, bool is_gpu,
          bool is_accelerator, int native_id,
-         bool queue_profiling); ////////
+         bool fp16, bool queue_profiling); 
 
   template <typename DeviceSelector>
   explicit device(const DeviceSelector &) : device() {}
@@ -133,6 +133,8 @@ public:
     switch (aspect_name) {
     case aspect::cpu:
       return is_cpu_;
+    case aspect::fp16:
+      return have_fp16_;
     case aspect::queue_profiling:
       return have_queue_profiling_;
     default:
@@ -180,8 +182,9 @@ private:
   bool is_gpu_{false};
   bool is_accelerator_{false};
 
-  int native_id_{0}; // CUDA / ROCm device index
-  bool have_queue_profiling_;
+  int native_id_{0}; 
+  bool have_fp16_{false} ;
+  bool have_queue_profiling_{false} ;
 };
 
 template <> inline auto device::get_info<info::device::name>() const {

@@ -107,7 +107,7 @@ inline sycl::device select_device_no_selector() {
   if (gpus.empty()) {
     return sycl::device(device_ctor_tag{}, "No GPU present", "", "", "", 0, 0,
                         0, sycl::info::local_mem_type::none, false, false,
-                        false, -1, false);
+                        false, -1, false, false);
   }
   return gpus.front();
 #else
