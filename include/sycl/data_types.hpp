@@ -88,7 +88,7 @@ public:
   vec operator*(const vec &rhs) const noexcept {
     vec result ;
     for (int i = 0 ; i < N ; ++i)
-      result.data[i] = data[i] * rhs.data[i]
+      result.data[i] = data[i] * rhs.data[i] ;
     return result ;
   }
 

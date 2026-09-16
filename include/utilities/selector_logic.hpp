@@ -93,7 +93,7 @@ inline sycl::device select_device_with_selector(const SelectorV &selector_v) {
     if (!best) {
       return sycl::device(device_ctor_tag{}, "No GPU present", "", "", "", 0, 0,
                           0, sycl::info::local_mem_type::none, false, false,
-                          false, -1, false);
+                          false, -1, false, false);
     }
     return *best;
   }
