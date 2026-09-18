@@ -36,7 +36,7 @@ device::device()
       version_(""), max_compute_units_(0), max_work_group_size_(1024),
       global_mem_size_bytes_(0), local_mem_type_(info::local_mem_type::none),
       is_cpu_(true), is_gpu_(false), is_accelerator_(false),
-      have_queue_profiling_(false) {
+      have_queue_profiling_(false), have_fp64_(true) {
   unsigned int hw = std::thread::hardware_concurrency();
   max_compute_units_ = hw ? hw : 1;
 
@@ -111,7 +111,7 @@ device::device(::paras_extension::device_ctor_tag, std::string name,
                std::size_t max_work_group_size,
                std::uint64_t global_mem_size_bytes,
                info::local_mem_type local_mem_type, bool is_cpu, bool is_gpu,
-               bool is_accelerator, int native_id, bool have_queue_profiling)
+               bool is_accelerator, int native_id, bool have_queue_profiling, bool have_fp64)
     : name_(std::move(name)), vendor_(std::move(vendor)),
       driver_version_(std::move(driver_version)), version_(std::move(version)),
       max_compute_units_(max_compute_units),
@@ -119,7 +119,7 @@ device::device(::paras_extension::device_ctor_tag, std::string name,
       global_mem_size_bytes_(global_mem_size_bytes),
       local_mem_type_(local_mem_type), is_cpu_(is_cpu), is_gpu_(is_gpu),
       is_accelerator_(is_accelerator), native_id_(native_id),
-      have_queue_profiling_(have_queue_profiling) {
+      have_queue_profiling_(have_queue_profiling), have_fp64_(have_fp64) {
   paras_extension::trim_inplace(name_);
   paras_extension::trim_inplace(vendor_);
   paras_extension::trim_inplace(driver_version_);

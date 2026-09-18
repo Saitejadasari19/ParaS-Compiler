@@ -117,7 +117,7 @@ public:
          std::uint64_t global_mem_size_bytes,
          info::local_mem_type local_mem_type, bool is_cpu, bool is_gpu,
          bool is_accelerator, int native_id,
-         bool queue_profiling); ////////
+         bool queue_profiling, bool fp64); ////////
 
   template <typename DeviceSelector>
   explicit device(const DeviceSelector &) : device() {}
@@ -135,6 +135,8 @@ public:
       return is_cpu_;
     case aspect::queue_profiling:
       return have_queue_profiling_;
+    case aspect::fp64:
+      return have_fp64_;
     default:
       return false;
     }
@@ -182,6 +184,7 @@ private:
 
   int native_id_{0}; // CUDA / ROCm device index
   bool have_queue_profiling_;
+  bool have_fp64_;
 };
 
 template <> inline auto device::get_info<info::device::name>() const {
