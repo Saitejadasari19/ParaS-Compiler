@@ -178,10 +178,6 @@ get_visible_nvidia_indices(const std::size_t physicalDeviceCount) {
 
 
 static inline bool nvidia_supports_fp64(const std::string &compute_cap) {
-  // NVIDIA GPUs supporting CUDA compute capability 1.3 or newer
-  // have native double-precision floating-point support.
-  //
-  // compute_cap is expected in the form "major.minor".
 
   const auto dot = compute_cap.find('.');
   if (dot == std::string::npos)
@@ -373,7 +369,7 @@ static inline std::uint32_t amd_cu_fallback(const std::string &name,
 }
 
 static inline bool amd_supports_fp64(const amd_gpu_info &gpu) {
-  (void) gpu; //to supress the compiler warning of unused parameter 'gpu'
+  (void) gpu;
   return true;
 }
 

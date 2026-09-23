@@ -101,11 +101,11 @@ PARAS_KERNEL_HD inline T reduce_over_group(Group g, T value,
 
     return paras_shfl(activeMask, value, 0);
   } else {
-	  #if defined(__CUDA_ARCH__)
-      // Reserving enough slots for the maximum CUDA threads per block
+    
+	  #if defined(PARAS_CUDA_BACKEND)
+
       __shared__ T reduction_data[1024];
 
-      // Converting CUDA's thread coordinates into single index
       const unsigned local_id = static_cast<unsigned>(threadIdx.x) + static_cast<unsigned>(threadIdx.y) * static_cast<unsigned>(blockDim.x) + static_cast<unsigned>(threadIdx.z) * static_cast<unsigned>(blockDim.x) * static_cast<unsigned>(blockDim.y);
 
       const unsigned group_size = static_cast<unsigned>(g.get_local_linear_range());
