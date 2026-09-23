@@ -111,7 +111,7 @@ device::device(::paras_extension::device_ctor_tag, std::string name,
                std::size_t max_work_group_size,
                std::uint64_t global_mem_size_bytes,
                info::local_mem_type local_mem_type, bool is_cpu, bool is_gpu,
-               bool is_accelerator, int native_id, bool have_queue_profiling, bool have_fp64)
+               bool is_accelerator, int native_id, bool fp16, bool fp64, bool have_queue_profiling)
     : name_(std::move(name)), vendor_(std::move(vendor)),
       driver_version_(std::move(driver_version)), version_(std::move(version)),
       max_compute_units_(max_compute_units),
@@ -119,7 +119,9 @@ device::device(::paras_extension::device_ctor_tag, std::string name,
       global_mem_size_bytes_(global_mem_size_bytes),
       local_mem_type_(local_mem_type), is_cpu_(is_cpu), is_gpu_(is_gpu),
       is_accelerator_(is_accelerator), native_id_(native_id),
-      have_queue_profiling_(have_queue_profiling), have_fp64_(have_fp64) {
+      have_fp16_(fp16),
+      have_fp64_(fp64),
+      have_queue_profiling_(have_queue_profiling) {
   paras_extension::trim_inplace(name_);
   paras_extension::trim_inplace(vendor_);
   paras_extension::trim_inplace(driver_version_);
