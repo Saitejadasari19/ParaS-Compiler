@@ -81,6 +81,21 @@ static unsigned int get_compute_units_nvidia(const std::string &raw_name) {
   return 0;
 }
 
+static inline bool nvidia_supports_fp16(const std::string& computeCapability) {
+  if (computeCapability.empty() || computeCapability == "unknown")
+    return false;
+
+  const auto dotPos = computeCapability.find('.');
+
+  if (dotPos == std::string::npos)
+    return false;
+
+  const int major = std::atoi(computeCapability.substr(0, dotPos).c_str());
+  const int minor = std::atoi(computeCapability.substr(dotPos + 1).c_str());
+
+  return major > 5 || (major == 5 && minor >= 3);
+}
+
 static inline std::string detect_cuda_version_from_nvidia_smi() {
   std::vector<std::string> lines;
   if (!run_cmd_lines_cached("nvidia-smi 2>/dev/null | head -n 5", lines))
@@ -208,9 +223,9 @@ std::vector<sycl::device> detect_nvidia_gpus() {
     trim_inplace(drv);
     trim_inplace(cap);
 
+    const bool haveFp16 = nvidia_supports_fp16(cap);
     const unsigned long mem_mib = parse_ul_or0(mem);
-    const std::uint64_t mem_bytes =
-        static_cast<std::uint64_t>(mem_mib) * 1024ULL * 1024ULL;
+    const std::uint64_t mem_bytes = static_cast<std::uint64_t>(mem_mib) * 1024ULL * 1024ULL;
     const unsigned int computeUnits = get_compute_units_nvidia(name);
 
     std::string versionString = "Compute Capability " + cap;
@@ -221,7 +236,7 @@ std::vector<sycl::device> detect_nvidia_gpus() {
     out.emplace_back(::paras_extension::device_ctor_tag{}, name, "NVIDIA", drv,
                      versionString, computeUnits, 1024, mem_bytes,
                      sycl::info::local_mem_type::local, false, true, false,
-                     static_cast<int>(logicalId), true);
+                     static_cast<int>(logicalId), haveFp16,  true);
   }
 #endif
 
@@ -349,6 +364,19 @@ static inline std::uint32_t amd_cu_fallback(const std::string &name,
   return 0;
 }
 
+static inline bool amd_supports_fp16(const std::string& gfx) {
+    if (gfx.empty())
+    return false;
+
+  if (gfx == "gfx908" ||  gfx == "gfx90a" ||  
+      gfx == "gfx942" ||  gfx == "gfx950") 
+  {  
+    return true;
+  }
+
+  return false;
+}
+
 std::vector<sycl::device> detect_amd_gpus() {
   std::vector<sycl::device> out;
 
@@ -375,10 +403,12 @@ std::vector<sycl::device> detect_amd_gpus() {
 
     std::uint64_t mem_bytes = g.vram_total_bytes;
 
+    const bool haveFp16 = amd_supports_fp16(g.gfx);
+
     out.emplace_back(::paras_extension::device_ctor_tag{}, name, "AMD",
                      drv.empty() ? "unknown" : drv, version, cus, 1024,
                      mem_bytes, sycl::info::local_mem_type::local, false, true,
-                     false, g.idx, false);
+                     false, g.idx, haveFp16,  false);
   }
 #endif
 

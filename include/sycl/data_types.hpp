@@ -24,13 +24,25 @@
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+
 #include "kem_gpu/gpu_utilities.hpp"
+#include "half.hpp"
 
 namespace sycl {
 
 template <typename T, int N> class vec {
 public:
   using value_type = T;
+
+  static_assert(
+    N == 1 ||
+    N == 2 ||
+    N == 3 ||
+    N == 4 ||
+    N == 8 ||
+    N == 16,
+    "SYCL vec sizes must be 1, 2, 3, 4, 8 or 16"
+  ) ;
 
   T data[N];
 
@@ -57,13 +69,6 @@ public:
   const T &operator[](std::size_t i) const noexcept { return data[i]; }
 
   PARAS_KERNEL_HD
-  vec &operator+=(const vec &rhs) noexcept {
-    for (int i = 0; i < N; ++i)
-      data[i] += rhs.data[i];
-    return *this;
-  }
-
-  PARAS_KERNEL_HD
   vec operator+(const vec &rhs) const noexcept {
     vec result;
     for (int i = 0; i < N; ++i)
@@ -77,6 +82,66 @@ public:
     for (int i = 0; i < N; ++i)
       result.data[i] = data[i] - rhs.data[i];
     return result;
+  }
+
+  PARAS_KERNEL_HD
+  vec operator*(const vec &rhs) const noexcept {
+    vec result ;
+    for (int i = 0 ; i < N ; ++i)
+      result.data[i] = data[i] * rhs.data[i] ;
+    return result ;
+  }
+
+  PARAS_KERNEL_HD
+  vec operator/(const vec &rhs) const noexcept {
+    vec result ;
+    for (int i = 0 ; i < N ; ++i)
+      result.data[i] = data[i] / rhs.data[i] ;
+    return result ;
+  }
+
+  PARAS_KERNEL_HD
+  vec operator*(T rhs) const noexcept {
+    vec result ;
+    for (int i = 0 ; i < N ; ++i) 
+      result.data[i] = data[i] * rhs ;
+    return result ;
+  }
+
+  PARAS_KERNEL_HD
+  vec operator/(T rhs) const noexcept {
+    vec result ;
+    for (int i = 0 ; i < N ; ++i) 
+      result.data[i] = data[i] / rhs ;
+    return result ;
+  }
+
+  PARAS_KERNEL_HD
+  vec &operator+=(const vec &rhs) noexcept {
+    for (int i = 0; i < N; ++i)
+      data[i] += rhs.data[i] ;
+    return *this;
+  }
+
+  PARAS_KERNEL_HD
+  vec &operator-=(const vec &rhs) noexcept {
+    for (int i = 0 ; i < N ; ++i)
+      data[i] -= rhs.data[i] ;
+    return *this ; 
+  }
+
+  PARAS_KERNEL_HD
+  vec &operator*=(const vec &rhs) noexcept {
+    for (int i = 0 ; i < N ; ++i) 
+      data[i] *= rhs.data[i] ;
+    return *this ;
+  }
+
+  PARAS_KERNEL_HD
+  vec &operator/=(const vec &rhs) noexcept {
+    for (int i = 0 ; i < N ; ++i) 
+      data[i] /= rhs.data[i] ;    
+    return *this ;
   }
 
   PARAS_KERNEL_HD
@@ -147,6 +212,10 @@ using float4 = vec<float, 4>;
 using int2 = vec<std::int32_t, 2>;
 using int3 = vec<std::int32_t, 3>;
 using int4 = vec<std::int32_t, 4>;
+
+using half2 = vec<half, 2> ;
+using half3 = vec<half, 3> ;
+using half4 = vec<half, 4> ;
 
 using uint2 = vec<std::uint32_t, 2>;
 using uint3 = vec<std::uint32_t, 3>;
